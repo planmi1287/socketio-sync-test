@@ -1,15 +1,12 @@
-const express =  require('express')
+import express, { static } from 'express';
 const app = express(); 
 const http = require('http').Server(app);
 const io = require('socket.io')(http)
 
-var data = {
-  paused: true,
-  currentTime: 0,
-  currentSource: undefined,
-}
+var videoPlayerData = new Object();
+var currentHost = new String();
 
-app.use(express.static('static'))
+app.use(static('static'))
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -22,37 +19,38 @@ app.get('/admin', (req, res) => {
 
 io.on('connection', (socket) => {
 
-    console.log('CLIENT CONNECTED (' + socket.id + ')');
+  console.log(`connect (${socket.id})`);
     socket.on('disconnect', () => {
-        console.log('A user disconnected');
-        
+        console.log(`disconnect (${socket.id})`);
     });
 
-    socket.on('play video', () => {
-      console.log('PLAY MEDIA')
-      io.emit('play video');
-    });
+    // How it works:
+    // Client sends a request to server to get the video data which sends a request to host, to get the video data
+    // CLIENT ------> SERVER ------> HOST
+    // CLIENT <------ SERVER <------ HOST
+    
+    socket.on('hostReturnVideoState', (data) => {
+        if (socket.id !== currentHost) {
+          return
+        }
+        //console.log(`hostReturnVideoState: (${socket.id})`)
+        videoPlayerData = data
+    })
 
-    socket.on('pause video', () => {
-      console.log('PAUSE MEDIA')
-      io.emit('pause video');
-    });
+    socket.on('serverGetVideoState', () => {
+      io.emit('hostGetVideoState')
+      io.emit('serverReturnVideoState', videoPlayerData)
+      //console.log(`serverReturnVideoState (${socket.id})`)
 
+    })
 
-    socket.on('sync video', () => {
-      console.log('SYNC TO A CLIENT (' + socket.id + ')')
-      console.log(data.currentTime)
-      socket.emit('set state', data.currentTime, data.currentSource, data.paused)
-    });
-
-
-    socket.on('return data', (time, src, paused) => {
-      data.currentTime = time
-      data.currentSource = src
-      data.paused = paused
-      
-      console.log(`CURRENT VIDEO STATE: ${data.currentTime} ${data.currentSource} ${data.paused}`)
-    });
+    // First user to connect to /admin is the host
+    // TODO: This is a mediocre security placeholder -- think of something better
+    socket.once('registerHost', () => {
+      console.log(`registerHost: (${socket.id})`)
+      currentHost = socket.id
+    })
+    
 
 
 });
