@@ -57,6 +57,6 @@ io.on('connection', (socket) => {
 
 });
 
-http.listen(80, '192.168.86.178', () => {
+http.listen(80, '', () => {
   console.log('listening on *:80');
 });
