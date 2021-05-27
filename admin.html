@@ -22,18 +22,6 @@
             var socket = io();
             var videoPlayer = document.getElementById('player');
 
-            
-            
-            socket.on('play video', () => {
-                console.log('play video!')
-                videoPlayer.play()
-            });
-
-            socket.on('pause video', () => {
-                console.log('pause video!')
-                videoPlayer.pause()
-            });
-
 
             setInterval(() => {socket.emit('return data', videoPlayer.currentTime, videoPlayer.src, videoPlayer.paused);}, 750) 
                 
