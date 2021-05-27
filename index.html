@@ -1,60 +1,12 @@
 <html>
     <head>
         <link href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css" rel="stylesheet" type="text/css">
-        <style>
-            #player {
-                width: 100%;
-                height: 100vh;
-            }
-
-        </style>
+        <link href="/css/main.css" rel="stylesheet" type="text/css">
     </head>
     <body>
-        <video id="player" src="01.mp4" controls type="video/mp4" preload="auto" controls>
+        <video id="player" src="video.mp4" controls type="video/mp4" preload="auto" controls>
         </video>
-        <!--<button id='btn-play'>play video</button>
-        <button id='btn-pause'>pause video</button>-->
-        <button id='btn-sync'>sync video</button>
-
-        
-        <script src="/socket.io/socket.io.js" ></script>
-        <script>
-            var socket = io();
-            var videoPlayer = document.getElementById('player')
-
-            socket.on('play video', () => {
-                console.log('CHECK SYNC')
-                socket.emit('sync video')
-                videoPlayer.play()
-                console.log('PLAYING VIDEO')
-            });
-
-            socket.on('pause video', () => {
-                socket.emit('sync video')
-                console.log('CHECK SYNC')
-                videoPlayer.pause()
-                console.log('PAUSING VIDEO')
-            });
-
-            socket.on('set state', (time, src, paused) => {
-                if (Math.abs(time - videoPlayer.currentTime) > 4) {
-                    console.warn('OUT OF SYNC BY MORE THAN 4 SECONDS, SYNCING...')
-                    videoPlayer.currentTime = time
-                }
-                if (paused == true) {
-                    videoPlayer.pause()
-                    console.log('PAUSING VIDEO')
-                } else { videoPlayer.play(); console.log('PLAYING VIDEO')}
-            });
-
-            //document.getElementById('btn-play').onclick = () => {socket.emit('play video')}
-            //document.getElementById('btn-pause').onclick = () => {socket.emit('pause video')}
-            document.getElementById('btn-sync').onclick = () => {socket.emit('sync video')}
-
-            videoPlayer.onplay = (event) => {socket.emit('sync video')}
-            videoPlayer.onpause = (event) => {socket.emit('sync video')}
-
-            setInterval(() => {socket.emit('sync video'); console.log('CHECK SYNC')}, 4000);
-        </script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/js/client.js"></script>
     </body>
 </html>
